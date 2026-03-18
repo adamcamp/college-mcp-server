@@ -43,6 +43,7 @@ public class Constants {
     public static final String ELLUCIAN_SS_DATA_NAME_VALUE_SUBJECTS = "sel_subj";
     public static final String ELLUCIAN_SS_DATA_CLASS_KEY = "class";
     public static final String ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES = "ddtitle";
+    public static final String ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES_ALT = "ddlabel";
     public static final String ELLUCIAN_SS_DATA_CLASS_TABLE_KEY = "SUMMARY";
     public static final String ELLUCIAN_SS_DATA_CLASS_TABLE_VALUE_SECTIONS = "This table lists the scheduled meeting times and assigned instructors for this class..";
     public static final String ELLUCIAN_SS_DATA_CLASS_TABLE_ROW_TAG = "tr";

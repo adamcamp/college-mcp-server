@@ -67,7 +67,8 @@ public class EllucianDataService {
     public static Set<Course> getCourses(final CoursesRequestModel request) {
         final Set<Course> res = new LinkedHashSet<>();
         final Document dom = getDocumentModel(request.getCollege(), ELLUCIAN_REGISTRATION_COURSES_RELATIVE_PATH, ELLUCIAN_REGISTRATION_SUBJECTS_RELATIVE_PATH, request.getTerm(), request.getSubject(), StringUtils.EMPTY);
-        final Elements elems = dom.getElementsByAttributeValue(ELLUCIAN_SS_DATA_CLASS_KEY, ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES);
+        if (dom == null) { return res; }
+        final Elements elems = getCourseElements(dom);
         for (final Element elem : elems) {
             final String courseInfo = elem.text();
             res.add(parseCourseFromCourseInfo(courseInfo));
@@ -78,8 +79,9 @@ public class EllucianDataService {
     public static Set<Section> getSections(final SectionsRequestModel request) {
         final Set<Section> res = new LinkedHashSet<>();
         final Document dom = getDocumentModel(request.getCollege(), ELLUCIAN_REGISTRATION_COURSES_RELATIVE_PATH, ELLUCIAN_REGISTRATION_SUBJECTS_RELATIVE_PATH, request.getTerm(), request.getSubject(), request.getNumber());
+        if (dom == null) { return res; }
         final List<Course> courses = new LinkedList<>();
-        final Elements elemsCourses = dom.getElementsByAttributeValue(ELLUCIAN_SS_DATA_CLASS_KEY, ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES);
+        final Elements elemsCourses = getCourseElements(dom);
         for (final Element elem : elemsCourses) {
             final String courseInfo = elem.text();
             courses.add(parseCourseFromCourseInfo(courseInfo));
@@ -101,6 +103,12 @@ public class EllucianDataService {
             res.add(new Section(currentCourse.getCourseId(), currentCourse.getCourseSection(), sectionMeetings.toArray(new SectionMeeting[sectionMeetings.size()])));
         }
         return res;
+    }
+
+    private static Elements getCourseElements(final Document dom) {
+        final Elements elems = dom.getElementsByAttributeValue(ELLUCIAN_SS_DATA_CLASS_KEY, ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES);
+        if (!elems.isEmpty()) { return elems; }
+        return dom.getElementsByAttributeValue(ELLUCIAN_SS_DATA_CLASS_KEY, ELLUCIAN_SS_DATA_CLASS_VALUE_COURSES_ALT);
     }
 
     private static Document getDocumentModel(final String collegeName, final String relativePath, final String referrerPath) {
@@ -142,7 +150,9 @@ public class EllucianDataService {
             http.setFixedLengthStreamingMode(encodedFormParams.length);
             http.getOutputStream().write(encodedFormParams);
 
+            log.info("Response code: {}", http.getResponseCode());
             final String html = IOUtils.toString(http.getInputStream(), StandardCharsets.UTF_8);
+            log.info("Response body: {}", html);
 
             return Jsoup.parse(html);
 
